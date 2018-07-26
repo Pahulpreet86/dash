@@ -21,7 +21,8 @@ class Resources:
             filtered_resource = {}
             if 'namespace' in s:
                 filtered_resource['namespace'] = s['namespace']
-            if 'external_url' in s and not self.config.serve_locally:
+            if 'external_url' in s and (
+                    not self.config.serve_locally or s.get('external_only')):
                 filtered_resource['external_url'] = s['external_url']
             elif 'relative_package_path' in s:
                 filtered_resource['relative_package_path'] = (

@@ -9,6 +9,7 @@ import pkgutil
 import warnings
 import re
 
+import itertools
 from functools import wraps
 
 import plotly
@@ -61,7 +62,7 @@ _re_index_scripts_id = re.compile(r'src=".*dash[-_]renderer.*"')
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-arguments
+# pylint: disable=too-many-arguments, too-many-locals
 class Dash(object):
     def __init__(
             self,
@@ -75,6 +76,8 @@ class Dash(object):
             compress=True,
             meta_tags=None,
             index_string=_default_index,
+            external_script_urls=None,
+            external_css_urls=None,
             **kwargs):
 
         # pylint-disable: too-many-instance-attributes
@@ -128,6 +131,14 @@ class Dash(object):
         # static files from the packages
         self.css = Css()
         self.scripts = Scripts()
+
+        for method, resource in itertools.chain(
+                ((self.scripts.append_script, x)
+                 for x in (external_script_urls or [])),
+                ((self.css.append_css, x)
+                 for x in (external_css_urls or []))):
+            method({'external_url': resource, 'external_only': True})
+
         self.registered_paths = {}
 
         # urls
